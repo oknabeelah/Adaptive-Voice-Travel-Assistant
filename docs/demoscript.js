@@ -82,79 +82,115 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Backend call function ---
     const sendMessageToBackend = async (userText) => {
-        if (!userText || !userText.trim()) return;
-        addMessage(userText, 'user');
-        textInput.value = '';
+    if (!userText || !userText.trim()) return;
+    addMessage(userText, 'user');
+    textInput.value = '';
 
-        // Show typing indicator
-        const typingMsg = document.createElement('div');
-        typingMsg.textContent = '💬 Typing...';
-        typingMsg.style.padding = '0.5rem 1rem';
-        typingMsg.style.borderRadius = '12px';
-        typingMsg.style.background = '#F1F0F0';
-        typingMsg.style.fontStyle = 'italic';
-        typingMsg.className = 'typing-indicator';
-        chatContainer.insertBefore(typingMsg, inputWrapper);
+    const typingMsg = document.createElement('div');
+    typingMsg.textContent = '💬 Typing...';
+    typingMsg.className = 'typing-indicator';
+    chatContainer.insertBefore(typingMsg, inputWrapper);
 
-        try {
-            // Call Codewords Workflow
-            console.log('Calling Codewords workflow...');
+    try {
+        // Call your backend instead of Codewords directly
+        const response = await fetch('/api/codewords', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: userText })
+        });
 
-            const codewordsResp = await fetch('https://api.codewords.io/workflow/run', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${CODEWORDS_API_KEY}`
-                },
-                body: JSON.stringify({
-                    input: userText,
-                    workflow_id: CODEWORDS_WORKFLOW_ID
-                })
-            });
+        const data = await response.json();
+        typingMsg.remove();
 
-            if (!codewordsResp.ok) {
-                throw new Error(`Codewords API error: ${codewordsResp.status}`);
-            }
+        addMessage(data.text || 'I received your message!', 'ai');
 
-            const codewordsData = await codewordsResp.json();
-            console.log('Codewords response:', codewordsData);
-
-            // Extract text response from Codewords
-            const aiResponseText = codewordsData.text || codewordsData.output || 'I received your message!';
-
-            // Remove typing indicator
-            typingMsg.remove();
-
-            // Add AI response to chat
-            addMessage(aiResponseText, 'ai');
-
-            // Optionally: Convert text to speech with ElevenLabs
-            if (ELEVENLABS_API_KEY && ELEVENLABS_API_KEY !== 'your_elevenlabs_api_key_here') {
-                await playElevenLabsAudio(aiResponseText);
-            }
-
-        } catch (err) {
-            console.error('Error calling Codewords:', err);
-            // Remove typing indicator
-            typingMsg.remove();
-
-            // Fallback to demo mode
-            addMessage('⚠️ Error connecting to Codewords. Using demo mode...', 'ai');
-
-            // Simple demo responses
-            const demoResponses = [
-                "That sounds like a great destination! When would you like to travel?",
-                "Perfect! I can help you plan an amazing trip. What's your budget?",
-                "Excellent choice! Let me create a personalized itinerary for you...",
-                "I'd love to help with that! Tell me more about what you're looking for."
-            ];
-
-            setTimeout(() => {
-                const randomResponse = demoResponses[Math.floor(Math.random() * demoResponses.length)];
-                addMessage(randomResponse, 'ai');
-            }, 1000);
+        // Optional: play audio if returned from backend
+        if (data.audioUrl) {
+            const audio = new Audio(data.audioUrl);
+            audio.play();
         }
-    };
+    } catch (err) {
+        console.error('Error calling backend:', err);
+        typingMsg.remove();
+        addMessage('⚠️ Could not reach server. Using demo mode...', 'ai');
+    }
+};
+
+    // const sendMessageToBackend = async (userText) => {
+    //     if (!userText || !userText.trim()) return;
+    //     addMessage(userText, 'user');
+    //     textInput.value = '';
+
+    //     // Show typing indicator
+    //     const typingMsg = document.createElement('div');
+    //     typingMsg.textContent = '💬 Typing...';
+    //     typingMsg.style.padding = '0.5rem 1rem';
+    //     typingMsg.style.borderRadius = '12px';
+    //     typingMsg.style.background = '#F1F0F0';
+    //     typingMsg.style.fontStyle = 'italic';
+    //     typingMsg.className = 'typing-indicator';
+    //     chatContainer.insertBefore(typingMsg, inputWrapper);
+
+    //     try {
+    //         // Call Codewords Workflow
+    //         console.log('Calling Codewords workflow...');
+
+    //         const codewordsResp = await fetch('https://api.codewords.ai/v1/workflow/run', 
+    //             {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //                 'Authorization': `Bearer ${CODEWORDS_API_KEY}`
+    //             },
+    //             body: JSON.stringify({
+    //                 input: userText,
+    //                 workflow_id: CODEWORDS_WORKFLOW_ID
+    //             })
+    //         });
+
+    //         if (!codewordsResp.ok) {
+    //             throw new Error(`Codewords API error: ${codewordsResp.status}`);
+    //         }
+
+    //         const codewordsData = await codewordsResp.json();
+    //         console.log('Codewords response:', codewordsData);
+
+    //         // Extract text response from Codewords
+    //         const aiResponseText = codewordsData.text || codewordsData.output || 'I received your message!';
+
+    //         // Remove typing indicator
+    //         typingMsg.remove();
+
+    //         // Add AI response to chat
+    //         addMessage(aiResponseText, 'ai');
+
+    //         // Optionally: Convert text to speech with ElevenLabs
+    //         if (ELEVENLABS_API_KEY && ELEVENLABS_API_KEY !== 'your_elevenlabs_api_key_here') {
+    //             await playElevenLabsAudio(aiResponseText);
+    //         }
+
+    //     } catch (err) {
+    //         console.error('Error calling Codewords:', err);
+    //         // Remove typing indicator
+    //         typingMsg.remove();
+
+    //         // Fallback to demo mode
+    //         addMessage('⚠️ Error connecting to Codewords. Using demo mode...', 'ai');
+
+    //         // Simple demo responses
+    //         const demoResponses = [
+    //             "That sounds like a great destination! When would you like to travel?",
+    //             "Perfect! I can help you plan an amazing trip. What's your budget?",
+    //             "Excellent choice! Let me create a personalized itinerary for you...",
+    //             "I'd love to help with that! Tell me more about what you're looking for."
+    //         ];
+
+    //         setTimeout(() => {
+    //             const randomResponse = demoResponses[Math.floor(Math.random() * demoResponses.length)];
+    //             addMessage(randomResponse, 'ai');
+    //         }, 1000);
+    //     }
+    // };
 
     // Function to play audio using ElevenLabs
     async function playElevenLabsAudio(text) {
