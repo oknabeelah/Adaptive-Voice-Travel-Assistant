@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoyceTrip - Voice Travel AI Assistant</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .demo-page {
+            min-height: 100vh;
+            padding: 8rem 2rem 4rem;
+            background: var(--bg-primary);
+        }
+
+        .demo-container {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        .demo-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .demo-header h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .demo-header p {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 1rem auto 0;
+            line-height: 1.7;
+        }
+
+        /* Main Layout Grid */
+        .demo-layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        /* Left Section - Trip Cards */
+        .trips-section {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+            letter-spacing: -0.01em;
+        }
+
+        .trip-card-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+
+        .trip-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            min-height: 140px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .trip-card:hover {
+            border-color: var(--primary);
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-4px);
+        }
+
+        .trip-card.placeholder {
+            background: var(--bg-secondary);
+            border-style: dashed;
+        }
+
+        .trip-card .destination {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+        }
+
+        .trip-card .details {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .trip-card .label {
+            font-size: 0.875rem;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+        }
+
+        /* Voice Input Section */
+        .voice-input-section {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .mic-button {
+            width: 60px;
+            height: 60px;
+            background: var(--gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .mic-button:hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .input-placeholder {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-tertiary);
+            font-size: 1rem;
+        }
+
+        /* Right Section - Suggestions */
+        .suggestions-section {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .suggestions-section h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .suggestion-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .suggestion-item {
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        .suggestion-item:hover {
+            background: var(--bg-primary);
+            border-color: var(--primary);
+            color: var(--text-primary);
+        }
+
+        .suggestion-item strong {
+            color: var(--text-primary);
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .action-button {
+            padding: 0.875rem 1.5rem;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .action-button:hover {
+            border-color: var(--primary);
+            background: var(--bg-secondary);
+        }
+
+        .action-button.primary {
+            background: var(--gradient);
+            color: white;
+            border: none;
+        }
+
+        .action-button.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .demo-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .trip-card-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .demo-page {
+                padding: 6rem 1.5rem 3rem;
+            }
+
+            .demo-header h1 {
+                font-size: 2.5rem;
+            }
+
+            .demo-header p {
+                font-size: 1rem;
+            }
+
+            .trip-card-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .voice-input-section {
+                flex-direction: column;
+                text-align: center;
+                padding: 2rem;
+            }
+
+            .section-title {
+                font-size: 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">VoyceTrip</div>
+            <div class="nav-links">
+                <a href="#active">Active Trips</a>
+                <a href="#past">Past Trips</a>
+                <a href="#preferences">Preferences</a>
+                <a href="#" class="nav-cta">Sign In →</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Demo Page Content -->
+    <section class="demo-page">
+        <div class="demo-container">
+            <div class="demo-header fade-in">
+                <div style="display: inline-block; padding: 0.5rem 1rem; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 50px; font-size: 0.875rem; font-weight: 500; margin-bottom: 2rem; color: var(--text-secondary);">
+                    ✨ Live Demo
+                </div>
+                <h1><span class="gradient-text">Voice Travel AI Assistant</span></h1>
+                <p>
+                    Plan your trips naturally with voice. Just speak, and VoyceTrip handles the rest.
+                </p>
+            </div>
+
+            <!-- Voice Input - Centered -->
+            <div class="voice-input-section fade-in" style="margin-bottom: 2rem;">
+                <div class="mic-button" title="Click to speak">🎤</div>
+                <div class="input-placeholder">
+                    Say something like "Plan my weekend in LA"...
+                </div>
+            </div>
+
+            <div class="demo-layout">
+                <!-- Left Section -->
+                <div class="trips-section">
+                    <!-- Active Trips -->
+                    <div class="scroll-reveal" id="active">
+                        <h2 class="section-title">Active Trips</h2>
+                        <div class="trip-card-grid">
+                            <div class="trip-card">
+                                <div class="destination">Los Angeles</div>
+                                <div class="details">Oct 15-17, 2025</div>
+                            </div>
+                            <div class="trip-card">
+                                <div class="destination">New York</div>
+                                <div class="details">Nov 1-5, 2025</div>
+                            </div>
+                            <div class="trip-card placeholder">
+                                <div class="label">+ Add Trip</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Past Trips -->
+                    <div class="scroll-reveal" id="past">
+                        <h2 class="section-title">Past Trips</h2>
+                        <p style="color: var(--text-tertiary); font-size: 0.95rem; margin-top: -0.5rem; margin-bottom: 1rem;">
+                            Including Granola memory integration
+                        </p>
+                        <div class="trip-card-grid">
+                            <div class="trip-card">
+                                <div class="destination">Paris</div>
+                                <div class="details">Sep 10-15, 2025</div>
+                            </div>
+                            <div class="trip-card">
+                                <div class="destination">Tokyo</div>
+                                <div class="details">Aug 5-12, 2025</div>
+                            </div>
+                            <div class="trip-card placeholder">
+                                <div class="label">View All</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Section - Suggestions -->
+                <div class="suggestions-section scroll-reveal">
+                    <h3>Suggestions</h3>
+
+                    <div class="suggestion-list">
+                        <div class="suggestion-item">
+                            <strong>Voice Input</strong>
+                            Include ElevenLabs, define others
+                        </div>
+                        <div class="suggestion-item">
+                            <strong>Choose your preferences</strong>
+                            Early flights, window seats, Italian food
+                        </div>
+                        <div class="suggestion-item">
+                            <strong>Weekend getaway</strong>
+                            Based on your past trips to beaches
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="action-button primary">Start Planning</button>
+                        <button class="action-button">View Preferences</button>
+                        <button class="action-button">Trip History</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info Section -->
+            <div class="scroll-reveal" style="margin-top: 5rem; padding: 4rem; background: var(--bg-secondary); border-radius: 20px; text-align: center; border: 1px solid var(--border);">
+                <h3 style="font-size: 2rem; font-weight: 700; margin-bottom: 1.5rem; letter-spacing: -0.02em;">
+                    Powered by Leading AI Technologies
+                </h3>
+                <p style="color: var(--text-secondary); margin-bottom: 3rem; font-size: 1.125rem; line-height: 1.7;">
+                    ElevenLabs for natural voice • Granola for context memory • GPT for intelligent planning
+                </p>
+                <button class="btn-primary">Get Started Free</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <div class="footer-logo">VoyceTrip</div>
+                <p>Your adaptive voice travel assistant</p>
+            </div>
+            <div class="footer-links">
+                <div class="footer-column">
+                    <h4>Product</h4>
+                    <a href="#">Features</a>
+                    <a href="#">Pricing</a>
+                    <a href="#">Demo</a>
+                </div>
+                <div class="footer-column">
+                    <h4>Company</h4>
+                    <a href="#">About</a>
+                    <a href="#">Blog</a>
+                    <a href="#">Careers</a>
+                </div>
+                <div class="footer-column">
+                    <h4>Resources</h4>
+                    <a href="#">Documentation</a>
+                    <a href="#">Support</a>
+                    <a href="#">Privacy</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 VoyceTrip. Built with ❤️ for HackHer Women in AI Hackathon.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
